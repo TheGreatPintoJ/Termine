@@ -17,6 +17,10 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 
 public class Main {
+    private static volatile Main instance;
+
+    public Main() {}
+
     public static Terminal terminal;
     public static Screen screen;
     public static TextGraphics g;
@@ -119,5 +123,38 @@ public class Main {
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static void drawText(int x, int y, String text) {
+        x -= (text.length() / 2);
+        for (char c : text.toCharArray()) {
+            g.setCharacter(x++, y, c);
+        }
+    }
+
+    public static void drawTextLeft(int x, int y, String text) {
+        for (char c : text.toCharArray()) {
+            g.setCharacter(x++, y, c);
+        }
+    }
+
+    public static void drawTextRight(int x, int y, String text) {
+        x -= text.length();
+        for (char c : text.toCharArray()) {
+            g.setCharacter(x++, y, c);
+        }
+    }
+
+    public static Main getInstance() {
+        // First check (no locking overhead)
+        if (instance == null) {
+            synchronized (Main.class) {
+                // Second check (inside synchronized block)
+                if (instance == null) {
+                    instance = new Main();
+                }
+            }
+        }
+        return instance;
     }
 }
